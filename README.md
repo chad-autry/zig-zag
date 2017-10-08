@@ -9,3 +9,8 @@ My own algorith is
 * is symetric and will return the same list of hexagons inverted
 * is not dependent on the cartesional representation and so has no rounding issues
 * Handles intersecting multiple hexagons better
+
+
+
+# Update
+The algorithm I have in mind appears to be a hexagonal version of [run-lenght slice](http://www.phatcode.net/res/224/files/html/ch36/36-02.html)
