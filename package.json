@@ -1,0 +1,32 @@
+{
+  "name": "zig-zag",
+  "version": "1.0.0",
+  "description": "A function to return the hexagons intersected by a line drawn between the center of two hexagons",
+  "main": "index.js",
+  "scripts": {
+    "eslint:fix": "eslint --fix 'index.js' 'driver.js'",
+    "eslint:init": "eslint --init",
+    "driver": "node driver.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chad-autry/zig-zag.git"
+  },
+  "author": "Chad Autry",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chad-autry/zig-zag/issues"
+  },
+  "homepage": "https://github.com/chad-autry/zig-zag#readme",
+  "dependencies": {
+    "fraction.js": "^4.0.12"
+  },
+  "devDependencies": {
+    "eslint": "^7.15.0",
+    "eslint-config-node": "^4.1.0",
+    "eslint-config-prettier": "^7.0.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.3.0",
+    "prettier": "^2.2.1"
+  }
+}
