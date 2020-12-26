@@ -1,5 +1,5 @@
 {
-  "name": "zig-zag",
+  "name": "@chad-autry/zig-zag",
   "version": "1.0.0",
   "description": "A function to return the hexagons intersected by a line drawn between the center of two hexagons",
   "main": "index.js",
