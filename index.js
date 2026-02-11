@@ -1,7 +1,7 @@
 "use strict";
 
-let Fraction = require("fraction.js");
 let ZigZag = {};
+//const sqrtThree = 1.732050807568877;
 
 /**
  *
@@ -12,7 +12,7 @@ let ZigZag = {};
  * @param {*} leftOriented
  * @returns
  */
-ZigZag.intersects = (initialU, initialV, finalU, finalV, leftOriented) => {
+ZigZag.intersects = (initialU, initialV, finalU, finalV, preferClockwise) => {
   let normalizedU = finalU - initialU;
   let normalizedV = finalV - initialV;
   let absNormU = Math.abs(normalizedU);
@@ -23,8 +23,7 @@ ZigZag.intersects = (initialU, initialV, finalU, finalV, leftOriented) => {
   let rightCount = 0;
   if (initialU == finalU && initialV == finalV) {
     return [[parseInt(finalU), parseInt(finalV)]];
-  }
-  else if (normalizedU >= 0 && normalizedV >= 0) {
+  } else if (normalizedU >= 0 && normalizedV >= 0) {
     left = { u: 0, v: 1 };
     leftCount = normalizedV;
     right = { u: 1, v: 0 };
@@ -52,51 +51,63 @@ ZigZag.intersects = (initialU, initialV, finalU, finalV, leftOriented) => {
     return [];
   }
   let totalCount = leftCount + rightCount;
-  let targetRightOverLeft = Fraction(rightCount, Math.max(leftCount, 1));
-  let targetLeftOverRight = Fraction(leftCount, Math.max(rightCount, 1));
+  
 
-  let traveledRight = 0;
-  let traveledLeft = 0;
+  let traveledLesser = 0;
+  let traveledGreater = 0;
+  let lesserCount;
+  let greaterCount;
+  let lesser;
+  let greater;
   let returnArray = [];
-  let lastHex = [0,0];
-  let travelRight = () => {traveledRight++;
-    lastHex = [lastHex[0] + right.u,lastHex[1] + right.v];
-    returnArray.push(lastHex);};
-  let travelLeft = () => {traveledLeft++;
-    lastHex = [lastHex[0] + left.u,lastHex[1] + left.v ];
-    returnArray.push(lastHex);};
-  for (let i = 0; i < totalCount; i++) {
-    if (rightCount == 0) {
-      travelLeft();
+  let lastHex = [initialU, initialV];
+  if (rightCount > leftCount || (rightCount == leftCount && preferClockwise)) {
+    lesserCount = leftCount;
+    greaterCount = rightCount;
+    lesser = left;
+    greater = right;
+  } else {
+    lesserCount = rightCount;
+    greaterCount = leftCount;
+    lesser = right;
+    greater = left;
+  }
+  //Note there is supposed to be a sqrtThree* in the numerator of targetSlope. But due to how it is being used, it can be omitted
+  let targetSlope = lesserCount/(0.5*lesserCount + greaterCount);
+  let travelLesser = () => {
+    traveledLesser++;
+    lastHex = [lastHex[0] + lesser.u, lastHex[1] + lesser.v];
+    returnArray.push(lastHex);
+  };
+  let travelGreater = () => {
+    traveledGreater++;
+    lastHex = [lastHex[0] + greater.u, lastHex[1] + greater.v];
+    returnArray.push(lastHex);
+  };
+
+  // First step is always in the greater direction
+  travelGreater();
+  for (let i = 1; i < totalCount; i++) {
+    if (traveledLesser == lesserCount) {
+      travelGreater();
       continue;
-    } else if (leftCount == 0) {
-      travelRight();
+    } else if (traveledGreater == greaterCount) {
+      travelLesser();
       continue;
     }
     //Compare the difference between the prospective slopes and target slope
-    let prospectiveRightOverLeftDiff = targetRightOverLeft
-      .sub(Fraction(traveledRight, traveledLeft + 1))
-      .abs();
-    let prospectiveLeftOverRightDiff = targetLeftOverRight
-      .sub(Fraction(traveledLeft, traveledRight + 1))
-      .abs();
-    let comparison = prospectiveRightOverLeftDiff.compare(
-      prospectiveLeftOverRightDiff
-    );
+    let prospectiveGreaterSlope = traveledLesser/(0.5*traveledLesser + traveledGreater + 1);
+    let prospectiveLesserSlope = (traveledLesser+1)/(0.5*(traveledLesser+1) + traveledGreater);
 
-    if (comparison > 0) {
-      travelRight();
-    } else if (comparison < 0) {
-      travelLeft();
+    // There was a sqrtThree* in the numerator of prospectiveGreaterSlope, prospectiveLesserSlope, and targetSlope.
+    // Since this comparison is all they were used for, factored that multiplcation out
+    if (targetSlope - prospectiveGreaterSlope < prospectiveLesserSlope - targetSlope) {
+      travelGreater();
     } else {
-      if (leftOriented) {
-        travelLeft();
-      } else {
-        travelRight();
-      }
+      travelLesser();
     }
   }
   return returnArray;
 };
 
-module.exports = ZigZag;
+export default ZigZag;
